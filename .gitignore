@@ -1,0 +1,122 @@
+# =========================
+# 操作系统 & 编辑器
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Vim
+*.swp
+*.swo
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+*.manifest
+*.spec
+
+# 虚拟环境（常见命名）
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# Jupyter / Notebook
+# =========================
+.ipynb_checkpoints
+*.ipynb
+
+# =========================
+# 数据 & 模型（按需保留）
+# =========================
+# 示例：忽略大型数据集、模型权重、日志等
+data/
+*.h5
+*.pth
+*.pt
+*.ckpt
+*.onnx
+logs/
+runs/            # PyTorch Lightning / TensorBoard
+checkpoints/*
+results/
+
+# 注意：如果你希望某些数据/模型被跟踪，可取消注释或添加例外
+# !data/sample.csv
+
+# =========================
+# 日志 & 临时文件
+# =========================
+*.log
+*.tmp
+*.bak
+*.pid
+
+# =========================
+# 其他
+# =========================
+.DS_Store
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.coverage.*
+.cache/
+
+# 本地配置（如数据库密码、API密钥等）
+*.env
+.env
+.env.local
+secrets/
+config/local_settings.py
+
+outputs/*
+wandb
+*.png
