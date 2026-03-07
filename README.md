@@ -112,15 +112,15 @@ The table below reports average accuracy (%, ↑) on ImageNet-C (severity level 
 
 | Method | ResNet50-GN | ViT-Base | ViT-Small | ConvNeXt-Tiny | Swin-Tiny | Avg. |
 |---|---|---|---|---|---|---|
-| NoAdapt | 30.6 | 29.9 | 22.9 | 34.7 | 31.3 | 29.9 |
-| Tent | 22.0 | 47.3 | 34.0 | 33.2 | 24.0 | 32.1 |
-| SAR | 37.2 | 58.0 | 38.1 | 35.2 | 28.5 | 39.4 |
-| EATA | 31.6 | 50.0 | 43.6 | 40.7 | 41.1 | 41.4 |
-| COME | 30.4 | 62.4 | 41.4 | 43.9 | 38.2 | 43.3 |
-| DeYO | 43.9 | 62.3 | 43.1 | 33.2 | 36.5 | 43.8 |
-| **ZeroSiam (ours)** | **51.6** | **64.1** | **51.5** | **50.3** | **50.4** | **53.6** |
+| NoAdapt | 29.9 | 28.5 | 21.6 | 34.0 | 31.0 | 29.0 |
+| Tent | 20.8 | 45.8 | 31.9 | 32.6 | 23.3 | 30.9 |
+| SAR | 37.1 | 57.3 | 35.8 | 35.3 | 28.6 | 38.8 |
+| EATA | 31.4 | 49.1 | 41.9 | 40.4 | 40.8 | 40.7 |
+| COME | 29.7 | 61.6 | 38.8 | 43.8 | 38.5 | 42.5 |
+| DeYO | 43.9 | 61.4 | 40.4 | 33.4 | 36.5 | 43.1 |
+| **ZeroSiam (ours)** | **51.1** | **63.4** | **49.9** | **49.8** | **50.1** | **52.9** |
 
-Please see our [paper](https://github.com/Cascol-Chen/ZeroSiam) for full results across all test scenarios (mixed shifts, batch size=1, blind-spot adaptation, LLM reasoning).
+Please see our [paper](https://arxiv.org/pdf/2509.23183) for full results across all test scenarios (mixed shifts, batch size=1, blind-spot adaptation, LLM reasoning).
 
 ## Correspondence
 
