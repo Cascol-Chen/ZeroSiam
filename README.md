@@ -7,7 +7,7 @@ This is the official project repository for [ZeroSiam: An Efficient Asymmetry fo
   1. Collapse prevention through asymmetric divergence alignment, which rules out collapsed trivial solutions as valid minima.
   2. Adaptive regularization of non-generalizable shortcut learning signals, boosting performance even when no collapse occurs.
   3. Negligible computational overhead — matching the latency of Tent (193s) on ViT-Base while substantially outperforming prior methods.
-* 3️⃣ ZeroSiam is validated on both **vision adaptation** (ImageNet-C, 5 diverse architectures) and **LLM reasoning** (Math-500, CollegeMath, AIME24, Minerva), demonstrating consistent gains across challenging wild test scenarios.
+* 3️⃣ ZeroSiam is validated on both **vision adaptation** (ImageNet-C, 5 diverse architectures), demonstrating consistent gains across challenging wild test scenarios.
 
 <p align="center">
 <img src="zerosiam.png" alt="ZeroSiam Architecture" width="80%" align=center />
@@ -33,8 +33,6 @@ conda activate zerosiam
 ├── impulse_noise/
 ...
 ```
-
-For mathematical reasoning experiments, please refer to the benchmark links in the paper (Math-500, CollegeMath, AIME24, Minerva).
 
 ## Model Preparation
 
@@ -120,7 +118,7 @@ The table below reports average accuracy (%, ↑) on ImageNet-C (severity level 
 | DeYO | 43.9 | 61.4 | 40.4 | 33.4 | 36.5 | 43.1 |
 | **ZeroSiam (ours)** | **51.1** | **63.4** | **49.9** | **49.8** | **50.1** | **52.9** |
 
-Please see our [paper](https://arxiv.org/pdf/2509.23183) for full results across all test scenarios (mixed shifts, batch size=1, blind-spot adaptation, LLM reasoning).
+Please see our [paper](https://arxiv.org/pdf/2509.23183) for full results across all test scenarios (mixed shifts, batch size=1, blind-spot adaptation).
 
 ## Correspondence
 
