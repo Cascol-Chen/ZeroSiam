@@ -35,8 +35,7 @@ COMMON_CORRUPTIONS = [
 def get_adapted_model(args, net, logger):
     if args.method == "tent":
         net = tent.configure_model(net)
-        params, param_names = tent.collect_params(net)
-        logger.info(param_names)
+        params, _ = tent.collect_params(net)
         optimizer = torch.optim.SGD(params, args.lr, momentum=0.9)
         return tent.Tent(net, optimizer), "Tent"
 
@@ -45,15 +44,13 @@ def get_adapted_model(args, net, logger):
 
     if args.method == "deyo":
         net = deyo.configure_model(net)
-        params, param_names = deyo.collect_params(net)
-        logger.info(param_names)
+        params, _ = deyo.collect_params(net)
         optimizer = torch.optim.SGD(params, lr=args.lr, momentum=0.9)
         return deyo.DeYO(net, optimizer), "DeYO"
 
     if args.method == "deyo_come":
         net = deyo_come.configure_model(net)
-        params, param_names = deyo_come.collect_params(net)
-        logger.info(param_names)
+        params, _ = deyo_come.collect_params(net)
         optimizer = torch.optim.SGD(params, lr=args.lr, momentum=0.9)
         return deyo_come.DeYO(net, optimizer), "DeYO-COME"
 
@@ -72,8 +69,7 @@ def get_adapted_model(args, net, logger):
         args.corruption = current_corruption
 
         net = eata.configure_model(net)
-        params, param_names = eata.collect_params(net)
-        logger.info(param_names)
+        params, _ = eata.collect_params(net)
 
         fishers = {}
         ewc_optimizer = torch.optim.SGD(params, 0.001)
@@ -106,8 +102,7 @@ def get_adapted_model(args, net, logger):
     if args.method == "zerosiam":
         net = BYOLWrapper(net, args.model)
         net = zerosiam.configure_model(net)
-        params, param_names = zerosiam.collect_params(net)
-        logger.info(param_names)
+        params, _ = zerosiam.collect_params(net)
         backbone_optimizer = torch.optim.SGD(params, args.lr * args.lr_scale, momentum=0.9)
         predictor_optimizer = torch.optim.SGD(net.predictor.parameters(), args.lr * args.lr_p, momentum=0.9)
         adapt_model = zerosiam.ZeroSiam(net, backbone_optimizer, predictor_optimizer)
@@ -180,7 +175,7 @@ def validate(val_loader, model, criterion, args, mode='eval'):
             if torch.cuda.is_available():
                 target = target.cuda()
 
-            if args.exp_type in ["incorrect_labels_k1", "incorrect_labels_k5"]: # 只评估
+            if args.exp_type in ["incorrect_labels_k1", "incorrect_labels_k5"]: # evaluation only
                 if args.method == "no_adapt":
                     output = model(images)
                 else:
@@ -206,7 +201,7 @@ def validate(val_loader, model, criterion, args, mode='eval'):
 
             if i % (args.print_freq) == 0:
                 progress.display(i)
-            break
+
     return top1.avg, top5.avg
 
 def get_args():
@@ -347,7 +342,7 @@ if __name__ == '__main__':
                 bs = set_blind_spot_adapt_loader(args)
                 error_val_dataset, error_val_loader = prepare_test_data(args)
                 error_val_dataset.switch_mode(True, False)
-                args.if_shuffle = True # 用来评估incorrect TTA的shuffle要开
+                args.if_shuffle = True # enable shuffle for incorrect-label evaluation
 
         if args.exp_type in ["label_shifts", "label_shifts+bs1"]:
             logger.info(f"imbalance ratio is {ir}")
@@ -367,10 +362,10 @@ if __name__ == '__main__':
             top1_error_indices, top5_error_indices = create_error_grouped_datasets(
                 error_val_loader, net, args, random_seed=2025, target_size=50000)
             if args.exp_type == "incorrect_labels_k1":
-                print("使用no_adapt top-1错误样本进行实验")  
+                print("Using no-adapt top-1 incorrect samples for evaluation")
                 selected_indices = top1_error_indices
             elif args.exp_type == "incorrect_labels_k5":
-                print("使用no_adapt top-5错误样本进行实验")
+                print("Using no-adapt top-5 incorrect samples for evaluation")
                 selected_indices = top5_error_indices
                   
             error_val_dataset.set_specific_subset(selected_indices)
@@ -383,8 +378,6 @@ if __name__ == '__main__':
         if args.exp_type in double_lr_settings and args.method in double_lr_methods:
             args.lr *= 2
             logger.info(f"Double lr for method={args.method}, exp_type={args.exp_type}")
-            
-        print(f"lr is {args.lr}")
 
         adapt_model, method_name = get_adapted_model(args, net, logger)
         top1, top5 = validate(val_loader, adapt_model, None, args, mode='eval')

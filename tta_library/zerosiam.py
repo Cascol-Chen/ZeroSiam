@@ -65,9 +65,6 @@ class ZeroSiam(nn.Module):
         """Compute the ZeroSiam loss for a batch of features."""
         # Target branch: original classifier prediction with stop-gradient.
         target_logits = self.model.head(features).detach()
-
-        # Online branch: the same feature passes through the learnable predictor
-        # before the frozen classifier head, creating the asymmetric branch.
         online_logits = self.get_online_logits(features)
 
         entropy_loss = softmax_entropy(online_logits).mean(0)
