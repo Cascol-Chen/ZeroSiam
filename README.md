@@ -1,6 +1,6 @@
 # ZeroSiam: An Efficient Asymmetry for Test-Time Entropy Optimization Without Collapse
 
-This is the official project repository for [ZeroSiam: An Efficient Asymmetry for Test-Time Entropy Optimization Without Collapse (ICLR 2026)](https://github.com/Cascol-Chen/ZeroSiam) by Guohao Chen\*, Shuaicheng Niu\*, Deyu Chen, Jiahao Yang, Zitian Zhang, Mingkui Tan, Pengcheng Wu, Zhiqi Shen.
+This is the official project repository for [ZeroSiam: An Efficient Asymmetry for Test-Time Entropy Optimization Without Collapse (ICLR 2026)](https://arxiv.org/pdf/2509.23183) by Guohao Chen\*, Shuaicheng Niu\*, Deyu Chen, Jiahao Yang, Zitian Zhang, Mingkui Tan, Pengcheng Wu, Zhiqi Shen.
 
 * 1️⃣ ZeroSiam addresses the collapse problem in **test-time entropy minimization**, where pure entropy minimization can drive models to degenerate solutions (e.g., constant one-hot outputs) that trivially minimize the objective without meaningful learning.
 * 2️⃣ ZeroSiam introduces a **minimal asymmetric Siamese architecture** for test-time entropy minimization — using a single lightweight predictor and a stop-gradient operator — without requiring augmentations, extra encoder passes, or teacher models. This yields:
@@ -90,8 +90,7 @@ python3 main.py \
     --lr_p 5 \
     --model vitbase_timm \
     --output ./outputs \
-    --tag1 experiment \
-    --tag2 run1
+    --tag1 experiment
 ```
 
 The recommended `lr_scale` and `lr_p` per model are:
@@ -131,7 +130,7 @@ If ZeroSiam is helpful in your research, please consider citing our paper:
 ```bibtex
 @inproceedings{chen2026zerosiam,
   title={ZeroSiam: An Efficient Asymmetry for Test-Time Entropy Optimization Without Collapse},
-  author={Guohao Chen and Shuaicheng Niu and Deyu Chen and Jiahao Yang and Zitian Zhang and Mingkui Tan and Pengcheng Wu and Zhiqi Shen},
+  author={Chen, Guohao and Niu, Shuaicheng and Chen, Deyu and Yang, Jiahao and Zhang, Zitian and Tan, Mingkui and Wu, Pengcheng and Shen, Zhiqi},,
   booktitle={International Conference on Learning Representations},
   year={2026}
 }

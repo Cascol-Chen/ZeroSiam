@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import logging
 import random
 
@@ -72,6 +73,34 @@ def get_logger(name: str, output_directory: str, log_name: str, debug: str) -> l
 
     logger.propagate = False
     return logger
+
+
+def set_random_seed(seed):
+    if seed is None:
+        return
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+
+
+def prepare_output_and_logger(args):
+    log_folder = os.path.join(args.output, f"{args.method}_{args.exp_type}_{args.model}", args.tag1)
+    os.makedirs(log_folder, exist_ok=True)
+    args.log_folder = log_folder
+    print(log_folder)
+
+    args.logger_name = time.strftime("%Y-%m-%d-%H-%M-%S.txt", time.localtime())
+    return get_logger(name="project", output_directory=log_folder, log_name=args.logger_name, debug=False)
+
+
+def log_and_store_result(logger, args, method_name, top1, top5, acc1s, acc5s):
+    logger.info(f"Result under {args.corruption}. The adapttion accuracy of {method_name} is top1 {top1:.5f} and top5: {top5:.5f}")
+    acc1s.append(top1.item())
+    acc5s.append(top5.item())
+    logger.info(f"acc1s are {acc1s}")
+    logger.info(f"acc5s are {acc5s}")
     
 
 def _sign(number):

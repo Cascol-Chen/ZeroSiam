@@ -1,88 +1,70 @@
-import torch
 import torch.nn as nn
-
-class DiagPredictor(nn.Module):
-    def __init__(self, dim, init_identity=True):
-        super().__init__()
-        # 可学习缩放向量，相当于对角元素
-        init = torch.ones(dim) if init_identity else torch.randn(dim)*0.01
-        self.scale = nn.Parameter(init)          # shape: [D]
-
-    def forward(self, z):                        # z: [B,D]
-        return z * self.scale                   # 按维度逐元素缩放
 
 
 class BYOLWrapper(nn.Module):
+    """Wrap a classifier with the lightweight predictor used by ZeroSiam.
+
+    The wrapper exposes two things ZeroSiam needs: a penultimate feature from
+    one backbone pass, and a ``head`` method that maps either original or
+    predictor-transformed features back to logits.
+    """
+
     def __init__(self, model, model_name):
         super().__init__()
         self.model = model
         self.model_name = model_name
-        if 'vit' in self.model_name or 'swin' in self.model_name:
-            projector_dim = self.model.head.weight.data.size(1)
-        elif 'convnext' in self.model_name:
-            projector_dim = self.model.head.fc.weight.data.size(1)
-        else:
-            projector_dim = self.model.fc.weight.data.size(1)
 
-        # self.predictor = nn.Sequential(
-        #     *[nn.Linear(projector_dim, projector_dim, bias=False) for _ in range(1)],
-        # ).cuda()
-        # self.predictor = nn.Sequential(
-        #     nn.Linear(projector_dim, projector_dim, bias=False),
-        # ).cuda()
+        # ZeroSiam inserts the predictor in feature space, so its dimension must
+        # match the classifier input dimension for each backbone family.
+        self.project_dim = self._infer_projector_dim()
+        self.predictor = self._build_predictor(self.project_dim)
 
-        # self.scale = nn.Parameter(torch.zeros(1))
-        self.predictor = nn.Sequential(
-            nn.Linear(projector_dim, projector_dim, bias=False),
-            # nn.ReLU(inplace=True),
-            # nn.Linear(projector_dim // 4, projector_dim, bias=False),
-        ).cuda()
-        # self.predictor = nn.Linear(projector_dim, projector_dim, bias=False).cuda()
-        for i, m in enumerate(self.predictor.modules()):
-            if isinstance(m, nn.Linear):
-                # nn.init.kaiming_normal_(m.weight)
-                nn.init.eye_(m.weight)
-                # m.weight.data = torch.eye(m.weight.data.shape[0], m.weight.data.shape[1]).cuda()
-            elif isinstance(m, (nn.BatchNorm1d)):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-        
-        # nn.init.zeros_(self.predictor[0].weight)
+        device = next(self.model.parameters()).device
+        self.to(device)
 
-        # self.predictor.weight.data += 0.01 * torch.randn_like(self.predictor.weight.data)
+    def _infer_projector_dim(self):
+        if "vit" in self.model_name or "swin" in self.model_name:
+            return self.model.head.weight.data.size(1)
+        if "convnext" in self.model_name:
+            return self.model.head.fc.weight.data.size(1)
+        return self.model.fc.weight.data.size(1)
 
-        self.project_dim = projector_dim
-        self.cuda()
+    def _build_predictor(self, dim):
+        predictor = nn.Sequential(nn.Linear(dim, dim, bias=False))
+        # Identity initialization gives ZeroSiam a warm start for fully TTA
+        nn.init.eye_(predictor[0].weight)
+        return predictor
 
     def forward(self, x):
-        if self.model_name == 'resnet50_bn_torch':
-            outputs, prev_features = self.model(x, return_feature=True)
-        else:
-            prev_features = self.model.forward_features(x)
-            outputs = self.model.forward_head(prev_features)
-        
-        if 'vit' in self.model_name:
-            prev_features = prev_features[:, 0]
-        elif 'convnext' in self.model_name:
-            prev_features = self.model.head.global_pool(prev_features)
-            prev_features = self.model.head.norm(prev_features)
-            prev_features = self.model.head.flatten(prev_features)
-        elif 'swin' in self.model_name:
-            if self.model.global_pool == 'avg':
-                prev_features = prev_features.mean(dim=1)
-        elif self.model_name == 'resnet50_bn_torch': # ResNet_bn
-            prev_features = prev_features
-        elif self.model_name == 'resnet50_gn_timm': # ResNet_gn
-            prev_features = self.model.global_pool(prev_features)
-        return outputs, prev_features
-    
+        features, outputs = self._extract_features_and_logits(x)
+        return outputs, self._pool_features(features)
+
+    def _extract_features_and_logits(self, x):
+        if self.model_name == "resnet50_bn_torch":
+            outputs, features = self.model(x, return_feature=True)
+            return features, outputs
+
+        features = self.model.forward_features(x)
+        outputs = self.model.forward_head(features)
+        return features, outputs
+
+    def _pool_features(self, features):
+        # Convert feature tensors into the vector expected by head(...).
+        if "vit" in self.model_name:
+            return features[:, 0]
+        if "convnext" in self.model_name:
+            features = self.model.head.global_pool(features)
+            features = self.model.head.norm(features)
+            return self.model.head.flatten(features)
+        if "swin" in self.model_name and self.model.global_pool == "avg":
+            return features.mean(dim=1)
+        if self.model_name == "resnet50_gn_timm":
+            return self.model.global_pool(features)
+        return features
+
     def head(self, x):
-        if 'vit' in self.model_name:
+        if "vit" in self.model_name or "swin" in self.model_name:
             return self.model.head(x)
-        elif 'convnext' in self.model_name:
+        if "convnext" in self.model_name:
             return self.model.head.fc(x)
-        elif 'swin' in self.model_name:
-            return self.model.head(x)
-        else:
-            # print(x.shape, self.model.fc.weight.shape)
-            return self.model.fc(x)
+        return self.model.fc(x)

@@ -1,16 +1,14 @@
 #!/bin/bash
 
 # ===== 1️⃣  =====
-source /chenyaofo/cgh/miniconda3/bin/activate reproduce1
+source /home/troynsc/miniconda3/bin/activate reproduce2
 
-export CUDA_VISIBLE_DEVICES=2
-# export HOME=/chenyaofo/cgh/researchs/Zerosiam_Preview
-export HOME=/chenyaofo/cgh
+export CUDA_VISIBLE_DEVICES=0
 
 # ===== 2️⃣ config =====
 MODEL=swin_tiny     # resnet50_gn_timm, vitbase_timm, vitsmall_timm, convnext_tiny, swin_tiny 
 METHOD=zerosiam            # no_adapt, tent, sar, eata, deyo_come, deyo, zerosiam
-EXP_TYPE=incorrect_labels_k1            # label_shifts, bs1, label_shifts+bs1, incorrect_labels_k1, mix_shifts, normal
+EXP_TYPE=label_shifts            # label_shifts, bs1, label_shifts+bs1, incorrect_labels_k1, mix_shifts, normal
 
 # ===== 3️⃣ set lr_scale and lr_p =====
 case $MODEL in
@@ -51,8 +49,8 @@ echo "======================================"
 
 # ===== 4️⃣ 运行 =====
 python3 main.py \
-    --data /chenyaofo/datasets/TTA/imagenet \
-    --data_corruption /chenyaofo/datasets/TTA/imagenet-c \
+    --data /ssd1/pytorch_dataset/ImageNet \
+    --data_corruption /ssd1/nsc/imagenet-c \
     --seed 2021 \
     --level 5 \
     --exp_type $EXP_TYPE \
@@ -60,8 +58,7 @@ python3 main.py \
     --lr_scale $LR_SCALE \
     --lr_p $LR_P \
     --model $MODEL \
-    --output /chenyaofo/cgh/cowork/cdy/research/SAR_cdy/outputs2 \
-    --tag1 test \
-    --tag2 test
+    --output ./outputs \
+    --tag1 test
 
 echo "✅ Finished."
